@@ -7,6 +7,7 @@
 <script>
     const variantes = {{ variantes_json| safe }};
     const favoritos_ids = {{ favoritos_ids|safe }};
+    const carritoItems = {{ carrito_items_json|safe }}; // {variante_id: cantidad}
 </script>
 <link rel="stylesheet" href="{% static 'ecommerce_uniformes/styles/producto.css' %}">
 {% endblock %}
@@ -91,12 +92,24 @@
         </div>
 
         <hr class="w-100">
-        <button id="btn-pedido" class="btn btn-dark px-5 py-2 mb-4 fs-5"><i class="bi bi-whatsapp me-2"></i>Realizar Pedido</button>
+        <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+            <button id="btn-carrito" class="btn btn-dark px-5 py-2 fs-5">
+                <i class="bi bi-cart-plus me-2"></i>Agregar al carrito
+            </button>
+            <!-- Panel visible sólo cuando la variante seleccionada está en el carrito -->
+            <div id="carrito-status" class="d-none align-items-center gap-2 w-100">
+                <span class="fs-6 px-3 py-2">
+                    <i class="bi bi-cart-check me-1"></i>
+                    <strong id="carrito-cantidad">0</strong> <span id="carrito-texto-unidades">unidades</span> en tu carrito.
+                </span>
+                <button id="btn-quitar-carrito" class="btn btn-outline-danger fs-5 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
         <p>{{ producto.descripcion }}</p>
     </div>
 </div>
-
-{% include 'layouts/boton_whatsapp.html' %}
 
 <!-- Script AJAX para favoritos -->
 <script>
@@ -119,11 +132,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function actualizarEstadoCarrito() {
+        const statusPanel = document.getElementById('carrito-status');
+        const cantidadText = document.getElementById('carrito-cantidad');
+        const textoUnidades = document.getElementById('carrito-texto-unidades');
+        
+        if (!varianteSeleccionada || !carritoItems[varianteSeleccionada]) {
+            statusPanel.classList.add('d-none');
+            statusPanel.classList.remove('d-flex');
+            return;
+        }
+
+        const cantidad = carritoItems[varianteSeleccionada];
+        cantidadText.textContent = cantidad;
+        textoUnidades.textContent = cantidad === 1 ? 'unidad' : 'unidades';
+
+        statusPanel.classList.remove('d-none');
+        statusPanel.classList.add('d-flex');
+    }
+
     const tallaButtons = document.querySelectorAll('.talla-button');
     tallaButtons.forEach(btn => {
         btn.addEventListener('change', function () {
             varianteSeleccionada = parseInt(this.dataset.varianteId);
             actualizarIconoFavorito();
+            actualizarEstadoCarrito();
+
+            // Limitar el input de cantidad al stock disponible de la variante
+            const variante = variantes.find(v =>
+                v.talla_id === parseInt(this.dataset.talla) &&
+                v.color_id === parseInt(document.querySelector('input[name="opcion-color"]:checked')?.dataset.color)
+            );
+            const cantidadInput = document.getElementById('input-cantidad');
+            if (variante) {
+                cantidadInput.max = variante.stock;
+                if (parseInt(cantidadInput.value) > variante.stock) {
+                    cantidadInput.value = variante.stock;
+                }
+            }
         });
 
         if (btn.checked) {
@@ -211,6 +257,75 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Error al actualizar la cantidad.');
         });
     });
+    // Botón Agregar al carrito (Sólo agrega o incrementa)
+    const btnCarrito = document.getElementById('btn-carrito');
+    if (btnCarrito) {
+        btnCarrito.addEventListener('click', () => {
+            if (!varianteSeleccionada) {
+                showToast('Selecciona una talla antes de agregar al carrito.', 'warning');
+                return;
+            }
+            const cantidad = parseInt(document.getElementById('input-cantidad').value) || 1;
+            fetch(`/carrito/agregar/${varianteSeleccionada}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `cantidad=${cantidad}`
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.estado === 'agregado' || data.estado === 'actualizado') {
+                    carritoItems[varianteSeleccionada] = data.cantidad;
+                    showToast('Producto añadido al carrito 🛒', 'success');
+                }
+                actualizarEstadoCarrito();
+                if (data.carrito_count !== undefined) updateCartBadge(data.carrito_count);
+            })
+            .catch(() => showToast('Error al actualizar el carrito', 'danger'));
+        });
+    }
+
+    // Botón Quitar del carrito (Elimina por completo la variante)
+    const btnQuitar = document.getElementById('btn-quitar-carrito');
+    if (btnQuitar) {
+        btnQuitar.addEventListener('click', () => {
+            if (!varianteSeleccionada) return;
+            
+            fetch(`/carrito/eliminar/${varianteSeleccionada}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+                credentials: 'same-origin',
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.estado === 'eliminado') {
+                    delete carritoItems[varianteSeleccionada];
+                    showToast('Producto eliminado del carrito', 'secondary');
+                    actualizarEstadoCarrito();
+                    if (data.carrito_count !== undefined) updateCartBadge(data.carrito_count);
+                }
+            })
+            .catch(() => showToast('Error al quitar del carrito', 'danger'));
+        });
+    }
+
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type} position-fixed end-0 m-3 shadow`;
+        toast.style.top = '80px';
+        toast.style.zIndex = '1055';
+        toast.style.transition = 'opacity 0.5s';
+        toast.innerText = message;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 500);
+        }, 3000);
+    }
 });
 </script>
 

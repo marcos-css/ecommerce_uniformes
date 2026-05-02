@@ -34,7 +34,12 @@
       {% endfor %}
     </div>
   {% else %}
-    <p>No tienes productos en favoritos aún.</p>
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-heart" style="font-size: 5rem; display: block; margin-bottom: 1rem;"></i>
+      <h4>No tienes productos en favoritos aún</h4>
+      <p>Explora el catálogo y guarda tus artículos favoritos.</p>
+      <a href="{% url 'catalogo' %}" class="btn btn-primary mt-2">Ver Catálogo</a>
+    </div>
   {% endif %}
 
   {% include 'layouts/boton_whatsapp.html' %}

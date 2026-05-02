@@ -19,7 +19,12 @@
 <body>
   <header class="container-fluid bg-dark d-flex justify-content-center align-items-center text-center py-2">
     <span class="text-light">Dudas y comentarios Whatsapp</span>
-    <span class="text-light fw-bold ms-2">+52 656 764 2563</span>
+    <span class="text-light fw-bold ms-2">
+      {% if debug %}
+      +52 656 000 0000
+      {% else %}
+      {{ numero_whatsapp }}
+      {% endif %}</span>
   </header>
 
   <nav class="navbar navbar-expand-md navbar-light bg-light">
@@ -48,8 +53,8 @@
         <li class="nav-item">
           <a class="nav-link" href="{% url 'contacto' %}">Contacto</a>
         </li>
-        <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Search">
+        <form class="d-flex" role="search" method="get" action="{% url 'catalogo' %}">
+          <input class="form-control me-2" type="search" name="q" placeholder="Buscar" autocomplete="off" aria-label="Search" value="{{ request.GET.q|default:'' }}">
         </form>
         <li class="nav-item dropdown">
           {% if user.is_authenticated %}
@@ -58,7 +63,11 @@
             {{ user.username }}&nbsp;<i class="bi bi-person-circle fs-3 me-1"></i>
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="{% url 'perfil' %}">Mi perfil</a></li>
+            <li><a class="dropdown-item" href="{% url 'perfil' %}">Mi Perfil</a></li>
+            <li><a class="dropdown-item" href="{% url 'perfil' %}#accordionPedidos">Mis Pedidos</a></li>
+            {% if user.is_staff %}
+            <li><a class="dropdown-item fw-bold text-primary" href="{% url 'dashboard' %}">Dashboard Admin</a></li>
+            {% endif %}
             <li>
               <hr class="dropdown-divider">
             </li>
@@ -78,6 +87,17 @@
           <a class="nav-link" href="{% url 'login' %}"><i class="bi bi-heart fs-3"></i></a>
           {% endif %}
         </li>
+
+        <li class="nav-item">
+          <a class="nav-link position-relative" href="{% url 'carrito' %}">
+            <i class="bi bi-cart3 fs-3"></i>
+            {% if carrito_count > 0 %}
+            <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">{{ carrito_count }}</span>
+            {% else %}
+            <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem; display:none;">0</span>
+            {% endif %}
+          </a>
+        </li>
       </ul>
 
       <!-- Menú colapsable solo para móviles -->
@@ -85,8 +105,8 @@
         <ul class="navbar-nav gap-2">
 
           <!-- Barra de búsqueda como primer elemento -->
-          <form class="d-flex px-3" role="search">
-            <input class="form-control" type="search" placeholder="Buscar" aria-label="Buscar">
+          <form class="d-flex px-3" role="search" method="get" action="{% url 'catalogo' %}">
+            <input class="form-control" type="search" name="q" placeholder="Buscar" aria-label="Buscar" value="{{ request.GET.q|default:'' }}">
           </form>
           </li>
 
@@ -104,6 +124,12 @@
           </li>
           <li class="nav-item">
             <a class="nav-link px-3" href="{% url 'favoritos' %}">Favoritos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3 d-flex align-items-center gap-1" href="{% url 'carrito' %}">
+              Carrito
+              {% if carrito_count > 0 %}<span class="badge bg-danger">{{ carrito_count }}</span>{% endif %}
+            </a>
           </li>
         </ul>
       </div>
@@ -143,6 +169,26 @@
   </div>
 
   <script>
+    // Función global para actualizar el badge del carrito en el navbar
+    function updateCartBadge(n) {
+      const badge = document.getElementById('cart-badge');
+      if (badge) {
+        badge.innerText = n;
+        badge.classList.toggle('d-none', n === 0);
+      }
+    }
+
+    // Registro de clicks en WhatsApp para analítica
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.track-whatsapp');
+      if (btn) {
+        fetch("{% url 'registrar-click-whatsapp' %}", {
+          method: 'POST',
+          headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+        }).catch(err => console.error("Error track WA:", err));
+      }
+    });
+
     document.addEventListener('DOMContentLoaded', function () {
       var toastElList = [].slice.call(document.querySelectorAll('.toast'))
       toastElList.forEach(function(toastEl) {

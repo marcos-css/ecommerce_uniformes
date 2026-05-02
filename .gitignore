@@ -1,6 +1,8 @@
 # Entorno virtual
 venv/
 .env
+env/
+.venv/
 
 # Archivos compilados de Python
 __pycache__/
@@ -20,3 +22,11 @@ Thumbs.db
 
 # Archivos de migración cacheados (opcional si los manejas distinto)
 *.pyc
+
+*.sqlite3
+
+media/
+
+reporte_seguridad.html
+
+.coverage

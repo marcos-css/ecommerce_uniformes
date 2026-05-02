@@ -2,12 +2,7 @@
 {% load static %}
 
 {% block catalogo_links %}
-<link rel="stylesheet" href="{% static 'ecommerce_uniformes/styles/catalogo.css' %}">
 <link rel="stylesheet" href="{% static 'ecommerce_uniformes/styles/carta_producto.css' %}">
-<script>
-  window.usuarioEstaLogueado = {{ request.user.is_authenticated|yesno:"true,false" }};
-  window.favoritosIds = {{ favoritos_ids|safe }};
-</script>
 {% endblock %}
 
 {% block content %}
@@ -31,8 +26,7 @@
             <div class="accordion-body">
               {% for escuela in escuelas %}
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="escuelas" value="{{ escuela.id }}" id="escuela{{ forloop.counter }}"
-                  {% if escuela.id|stringformat:"s" in escuelas_seleccionadas %}checked{% endif %}>
+                <input class="form-check-input" type="checkbox" name="escuelas" value="{{ escuela.id }}" id="escuela{{ forloop.counter }}" {% if escuela.id|stringformat:"s" in escuelas_seleccionadas %}checked{% endif %}>
                 <label class="form-check-label" for="escuela{{ forloop.counter }}">{{ escuela.nombre }}</label>
               </div>
               {% endfor %}
@@ -52,8 +46,7 @@
             <div class="accordion-body">
               {% for categoria in categorias %}
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="categorias" value="{{ categoria.id }}" id="categoria{{ forloop.counter }}"
-                  {% if categoria.id|stringformat:"s" in categorias_seleccionadas %}checked{% endif %}>
+                <input class="form-check-input" type="checkbox" name="categorias" value="{{ categoria.id }}" id="categoria{{ forloop.counter }}" {% if categoria.id|stringformat:"s" in categorias_seleccionadas %}checked{% endif %}>
                 <label class="form-check-label" for="categoria{{ forloop.counter }}">{{ categoria.nombre }}</label>
               </div>
               {% endfor %}
@@ -73,8 +66,7 @@
             <div class="accordion-body">
               {% for talla in tallas %}
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="tallas" value="{{ talla.id }}" id="talla{{ forloop.counter }}"
-                  {% if talla.id|stringformat:"s" in tallas_seleccionadas %}checked{% endif %}>
+                <input class="form-check-input" type="checkbox" name="tallas" value="{{ talla.id }}" id="talla{{ forloop.counter }}" {% if talla.id|stringformat:"s" in tallas_seleccionadas %}checked{% endif %}>
                 <label class="form-check-label" for="talla{{ forloop.counter }}">{{ talla.nombre }}</label>
               </div>
               {% endfor %}
@@ -93,13 +85,11 @@
             data-bs-parent="#accordionExample">
             <div class="accordion-body">
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="disponibilidad" value="disponible" id="disponible"
-                  {% if "disponible" in disponibilidad_seleccionada %}checked{% endif %}>
+                <input class="form-check-input" type="checkbox" name="disponibilidad" value="disponible" id="disponible" {% if "disponible" in disponibilidad_seleccionada %}checked{% endif %}>
                 <label class="form-check-label" for="disponible">Disponible</label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="disponibilidad" value="agotado" id="agotado"
-                  {% if "agotado" in disponibilidad_seleccionada %}checked{% endif %}>
+                <input class="form-check-input" type="checkbox" name="disponibilidad" value="agotado" id="agotado" {% if "agotado" in disponibilidad_seleccionada %}checked{% endif %}>
                 <label class="form-check-label" for="agotado">Agotado</label>
               </div>
             </div>
@@ -112,7 +102,12 @@
 
   <div class="contenedor-productos p-2 col-12 col-md-10">
     {% for item in productos_con_datos %}
-      {% include 'layouts/carta_producto.html' with producto=item.producto precio_min=item.precio_min precio_max=item.precio_max total_stock=item.total_stock en_favoritos=item.en_favoritos variante_id=item.variante_id %}
+      {% include 'layouts/carta_producto.html' with producto=item.producto precio_min=item.precio_min precio_max=item.precio_max total_stock=item.total_stock en_favoritos=item.en_favoritos en_carrito=item.en_carrito variante_id=item.variante_id %}
+    {% empty %}
+    <div class="alert alert-info w-100 text-center mt-5" role="alert">
+      <i class="bi bi-info-circle fs-4 d-block mb-2"></i>
+      Actualmente no hay productos disponibles en el catálogo.
+    </div>
     {% endfor %}
   </div>
 </div>
@@ -150,6 +145,25 @@
     window.location.href = window.location.pathname + '?' + params.toString();
   }
 
+  function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} position-fixed end-0 m-3 shadow`;
+    toast.style.top = '80px';
+    toast.style.zIndex = '1055';
+    toast.style.transition = 'opacity 0.5s';
+    toast.innerText = message;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 500);
+    }, 3000);
+  }
+
+  // Variables inyectadas desde el servidor
+  window.usuarioEstaLogueado = {{ user.is_authenticated|yesno:'true,false' }};
+  window.favoritosIds = {{ favoritos_ids|safe }};
+  window.carritoIds = {{ carrito_ids|safe }};
+
   document.addEventListener('DOMContentLoaded', () => {
     // Asignar listener a todos los checkboxes de filtros
     document.querySelectorAll('#accordionExample input[type="checkbox"]').forEach(chk => {
@@ -160,16 +174,12 @@
     document.querySelectorAll('.carta-producto').forEach(carta => {
       const botonFavoritos = carta.querySelector('.boton-favoritos');
       const varianteId = carta.dataset.varianteId;
-
-      if (window.favoritosIds && window.favoritosIds.includes(parseInt(varianteId))) {
-        botonFavoritos.classList.add('activo');
-      } else {
-        botonFavoritos.classList.remove('activo');
-      }
+      // El estado inicial ya viene renderizado desde el servidor (en_favoritos)
+      // Solo necesitamos escuchar clicks
 
       botonFavoritos.addEventListener('click', () => {
         if (!window.usuarioEstaLogueado) {
-          alert('Debes iniciar sesión para agregar productos a favoritos.');
+          showToast('Debes iniciar sesión para agregar productos a favoritos.', 'warning');
           return;
         }
 
@@ -180,7 +190,7 @@
         })
           .then(res => {
             if (res.status === 401 || res.status === 403) {
-              alert('No tienes permiso para realizar esta acción. Por favor inicia sesión.');
+              showToast('No tienes permiso para realizar esta acción. Por favor inicia sesión.', 'warning');
               throw new Error('No autorizado');
             }
             return res.json();
@@ -188,18 +198,53 @@
           .then(data => {
             if (data.estado === 'agregado') {
               botonFavoritos.classList.add('activo');
-              alert('Producto agregado a favoritos');
+              showToast('Producto agregado a favoritos', 'success');
             } else if (data.estado === 'eliminado') {
               botonFavoritos.classList.remove('activo');
-              alert('Producto removido de favoritos');
+              showToast('Producto removido de favoritos', 'secondary');
             }
           })
           .catch(err => {
             console.error('Error al actualizar favorito:', err);
             if (err.message !== 'No autorizado') {
-              alert('Error al actualizar favorito');
+              showToast('Error al actualizar favorito', 'danger');
             }
           });
+      });
+    });
+
+    // Toggle carrito (a nivel de producto)
+    document.querySelectorAll('.boton-carrito').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!window.usuarioEstaLogueado) {
+          showToast('Debes iniciar sesión para agregar productos al carrito.', 'warning');
+          return;
+        }
+        const carta = btn.closest('.carta-producto');
+        const productoId = carta.dataset.productoId;
+        fetch(`/carrito/toggle-producto/${productoId}/`, {
+          method: 'POST',
+          headers: { 'X-CSRFToken': getCookie('csrftoken') },
+          credentials: 'same-origin',
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.estado === 'agregado') {
+              btn.classList.add('btn-dark');
+              btn.classList.remove('btn-outline-dark');
+              btn.querySelector('i').className = 'bi bi-cart-check fs-5';
+              btn.title = 'Quitar del carrito';
+              showToast('Producto agregado al carrito 🛒', 'success');
+            } else if (data.estado === 'eliminado') {
+              btn.classList.remove('btn-dark');
+              btn.classList.add('btn-outline-dark');
+              btn.querySelector('i').className = 'bi bi-cart-plus fs-5';
+              btn.title = 'Agregar al carrito';
+              showToast('Producto eliminado del carrito', 'secondary');
+            }
+            if (data.carrito_count !== undefined) updateCartBadge(data.carrito_count);
+          })
+          .catch(() => showToast('Error al actualizar el carrito', 'danger'));
       });
     });
   });

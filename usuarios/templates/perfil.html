@@ -78,6 +78,63 @@
   <button type="submit" class="btn btn-dark mt-5 ms-5">Guardar cambios</button>
 </form>
   </div>
+  <hr class="mt-5">
+  <!-- Sección de Pedidos -->
+  <div class="row px-5 py-3">
+    <h3 class="mb-4">Mis pedidos</h3>
+    {% if pedidos %}
+      <div class="accordion" id="accordionPedidos">
+        {% for pedido in pedidos %}
+          <div class="accordion-item mb-3 border shadow-sm">
+            <h2 class="accordion-header" id="heading{{ pedido.id }}">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ pedido.id }}" aria-expanded="false" aria-controls="collapse{{ pedido.id }}">
+                <div class="d-flex justify-content-between w-100 me-3 align-items-center flex-wrap gap-2">
+                  <span><strong>Pedido #{{ pedido.id }}</strong> — {{ pedido.fecha|date:"d/m/Y H:i" }}</span>
+                  <span>Total: <strong>${{ pedido.total }}</strong></span>
+                  <span class="badge 
+                    {% if pedido.estado == 'pendiente' %}bg-warning text-dark
+                    {% elif pedido.estado == 'enviado' %}bg-info
+                    {% elif pedido.estado == 'entregado' %}bg-success
+                    {% else %}bg-danger{% endif %}">
+                    {{ pedido.get_estado_display }}
+                  </span>
+                </div>
+              </button>
+            </h2>
+            <div id="collapse{{ pedido.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ pedido.id }}" data-bs-parent="#accordionPedidos">
+              <div class="accordion-body">
+                <ul class="list-group list-group-flush">
+                  {% for detalle in pedido.detallespedido_set.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                      <div>
+                        <strong>{{ detalle.talla_variante.color_producto.producto.nombre }}</strong><br>
+                        <small class="text-muted">
+                          Color: {{ detalle.talla_variante.color_producto.color.nombre }}, 
+                          Talla: {{ detalle.talla_variante.talla.nombre }}
+                        </small>
+                      </div>
+                      <div class="text-end">
+                        <span>{{ detalle.cantidad }} uds.</span><br>
+                        <strong>${{ detalle.total }}</strong>
+                      </div>
+                    </li>
+                  {% endfor %}
+                </ul>
+                <div class="mt-3 text-end">
+                  <p class="small text-muted mb-0">Si necesitas ayuda con este pedido, contáctanos por WhatsApp indicando el # de pedido.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-info text-center">
+        Aún no has realizado ningún pedido. <a href="{% url 'catalogo' %}" class="alert-link">¡Empieza a comprar!</a>
+      </div>
+    {% endif %}
+  </div>
+
   {% include 'layouts/boton_whatsapp.html' %}
 </div>
 

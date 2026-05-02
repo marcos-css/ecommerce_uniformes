@@ -6,10 +6,8 @@
 <h1 class="mt-5">Contáctanos</h1>
 <div class="row">
     <div class="col-12 col-md-6">
-    <form action="https://api.web3forms.com/submit" method="POST">
-        
-        <!-- Replace with your Access Key -->
-        <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY_HERE">
+    <form action="{% url 'contacto' %}" method="POST">
+        {% csrf_token %}
         
         <!-- Form Inputs. Each input must have a name="" attribute -->
         <div class="form-floating mb-3">

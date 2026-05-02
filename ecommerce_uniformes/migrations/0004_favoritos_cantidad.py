@@ -6,13 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecommerce_uniformes', '0003_remove_favoritos_producto_favoritos_talla_variante'),
+        (
+            "ecommerce_uniformes",
+            "0003_remove_favoritos_producto_favoritos_talla_variante",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='favoritos',
-            name='cantidad',
+            model_name="favoritos",
+            name="cantidad",
             field=models.PositiveIntegerField(default=1),
         ),
     ]

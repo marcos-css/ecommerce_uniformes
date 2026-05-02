@@ -1,23 +1,23 @@
+.swiper-container-custom {
+  aspect-ratio: 3/1;
+  width: 100%;
+  position: relative;
+}
 
-  .swiper-container-custom {
-    aspect-ratio: 3/1;
-    width: 100%;
-    position: relative;
-  }
+.swiper-slide {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .swiper-slide {
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .swiper-button-prev::after, .swiper-button-next::after{
-    color: black;
-  }
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  color: black;
+}
 
 .card-container {
   padding: 1rem;
@@ -25,7 +25,8 @@
 
 .card-custom {
   position: relative;
-  flex: 1 1 calc(25% - 1rem); /* 4 columnas con espacio */
+  flex: 1 1 calc(25% - 1rem);
+  /* 4 columnas con espacio */
   min-width: 200px;
   /* overflow: hidden; */
   background-color: #f2f2f2;
@@ -41,7 +42,8 @@
 }
 
 .card-description {
-  background: #333; /* fondo oscuro */
+  background: #333;
+  /* fondo oscuro */
   width: 100%;
   padding: 0.5rem;
   text-align: center;
@@ -54,17 +56,142 @@
 /* Responsivo */
 @media (max-width: 992px) {
   .card-custom {
-    flex: 1 1 calc(50% - 1rem); /* 2 por fila en pantallas medianas */
+    flex: 1 1 calc(50% - 1rem);
+    /* 2 por fila en pantallas medianas */
   }
 }
 
 @media (max-width: 576px) {
   .card-custom {
-    flex: 1 1 100%; /* 1 por fila en pantallas pequeñas */
+    flex: 1 1 100%;
+    /* 1 por fila en pantallas pequeñas */
   }
 }
-  @media (max-width: 768px) {
-    .swiper-container-custom {
-      /* height: 250px; */
-    }
+
+@media (max-width: 768px) {
+  .swiper-container-custom {
+    /* height: 250px; */
   }
+}
+
+/* Variables de Color (Estética Minimalista) */
+:root {
+  --color-dark: #1a1a1a;
+  --color-beige: #F9F8F4;
+  --color-beige-dark: #EBE8E0;
+  --color-text-muted: #666666;
+}
+
+/* Tipografía y Utilidades */
+.letter-spacing-1 {
+  letter-spacing: 2px;
+}
+
+.divider-minimal {
+  width: 40px;
+  height: 2px;
+  background-color: var(--color-dark);
+}
+
+.bg-beige {
+  background-color: var(--color-beige);
+}
+
+/* Swiper Personalizado */
+.swiper-container-custom {
+  height: 70vh;
+  /* Altura dinámica para pantallas grandes */
+  min-height: 400px;
+  width: 100%;
+  position: relative;
+  background-color: var(--color-dark);
+}
+
+.swiper-slide {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  /* Centra el contenido verticalmente */
+}
+
+.hero-content {
+  padding-top: 4rem;
+  z-index: 10;
+}
+
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  color: white;
+  transform: scale(0.7);
+  /* Flechas más sutiles */
+}
+
+.swiper-pagination-bullet {
+  background: white;
+  opacity: 0.5;
+}
+
+.swiper-pagination-bullet-active {
+  opacity: 1;
+}
+
+/* Tarjetas de Categoría (Catálogo) */
+.card-minimal {
+  transition: transform 0.3s ease;
+  background-color: transparent;
+}
+
+.card-minimal .img-container {
+  aspect-ratio: 4/5;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-minimal img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+  /* Si las imágenes tienen fondo blanco, esto las integra perfecto con el beige */
+  transition: transform 0.5s ease;
+}
+
+.card-minimal:hover img {
+  transform: scale(1.05);
+}
+
+.card-minimal a {
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.card-minimal a:hover {
+  color: var(--color-text-muted) !important;
+  border-color: var(--color-text-muted) !important;
+}
+
+/* Sección de Marcas */
+.brand-item img {
+  filter: grayscale(100%) contrast(120%);
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.brand-item:hover img {
+  filter: grayscale(0%) contrast(100%);
+  opacity: 1;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .swiper-container-custom {
+    height: 50vh;
+  }
+
+  .hero-content {
+    padding: 0 1rem;
+  }
+}

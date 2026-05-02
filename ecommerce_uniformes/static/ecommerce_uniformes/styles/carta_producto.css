@@ -1,16 +1,48 @@
 .carta-producto:hover img {
-    transform: scale(1.3);
-    transition: all .3s ease;
+  transform: scale(1.3);
+  transition: all .3s ease;
 }
 
 .carta-producto img {
-    transition: all .3s ease;
-    -webkit-user-drag: none;
-    z-index: 1;
+  transition: all .3s ease;
+  -webkit-user-drag: none;
+  z-index: 1;
+}
+
+.carta-producto {
+  width: calc(33% - 1rem) !important;
+  min-width: 200px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.contenedor-productos {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 1rem;
 }
 
 .contenedor-imagen {
-    overflow: hidden;
+  overflow: hidden;
+}
+
+/* Responsivo */
+@media (max-width: 992px) {
+  .carta-producto {
+    width: calc(33.33% - 1rem) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .carta-producto {
+    width: calc(50% - 1rem) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .carta-producto {
+    width: 100% !important;
+  }
 }
 
 .boton-favoritos-outline {

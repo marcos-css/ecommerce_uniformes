@@ -1,4 +1,4 @@
-<div class="carta-producto w-100 border-0 position-relative" data-variante-id="{{ variante_id }}"  data-producto-id="{{ producto.id }}">
+<div class="carta-producto border-0 position-relative" data-variante-id="{{ variante_id }}" data-producto-id="{{ producto.id }}">
   <div class="boton-favoritos {% if en_favoritos %}activo{% endif %}">
     <i class="bi bi-heart-fill boton-favoritos-fill fs-3"></i>
     <i class="bi bi-heart boton-favoritos-outline fs-3"></i>
@@ -25,10 +25,17 @@
       <p class="card-text my-3 text-muted">Precio no disponible</p>
     {% endif %}
 
-    <a href="{% url 'producto' producto.id %}"
-       class="btn btn-dark d-block fs-5 {% if total_stock <= 0 %}d-none{% endif %}"
-       title="Ver más detalles de {{ producto.nombre }}">
-      <i class="bi bi-bag-fill me-2"></i>Ver más
-    </a>
+    <div class="d-flex gap-2 mt-1">
+      <a href="{% url 'producto' producto.id %}"
+         class="btn btn-dark flex-grow-1 fs-5 {% if total_stock <= 0 %}disabled{% endif %}"
+         title="Ver más detalles de {{ producto.nombre }}">
+        <i class="bi bi-bag-fill me-2"></i>Ver más
+      </a>
+      {% if total_stock > 0 %}
+      <button class="btn boton-carrito {% if en_carrito %}btn-dark{% else %}btn-outline-dark{% endif %}" title="{% if en_carrito %}Quitar del carrito{% else %}Agregar al carrito{% endif %}" data-variante-id="{{ variante_id }}">
+        <i class="bi bi-cart{% if en_carrito %}-check{% else %}-plus{% endif %} fs-5"></i>
+      </button>
+      {% endif %}
+    </div>
   </div>
 </div>

@@ -1,0 +1,19 @@
+[run]
+omit =
+    */migrations/*
+    */__init__.py
+    manage.py
+    *settings.py
+    *asgi.py
+    *wsgi.py
+    env/*
+
+[report]
+omit =
+    */migrations/*
+    */__init__.py
+    manage.py
+    *settings.py
+    *asgi.py
+    *wsgi.py
+    env/*

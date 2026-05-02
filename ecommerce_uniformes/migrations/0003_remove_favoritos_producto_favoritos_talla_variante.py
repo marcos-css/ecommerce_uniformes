@@ -7,17 +7,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecommerce_uniformes', '0002_escuela_producto_escuela'),
+        ("ecommerce_uniformes", "0002_escuela_producto_escuela"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='favoritos',
-            name='producto',
+            model_name="favoritos",
+            name="producto",
         ),
         migrations.AddField(
-            model_name='favoritos',
-            name='talla_variante',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='ecommerce_uniformes.tallavariante'),
+            model_name="favoritos",
+            name="talla_variante",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="ecommerce_uniformes.tallavariante",
+            ),
         ),
     ]

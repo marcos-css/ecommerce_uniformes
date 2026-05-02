@@ -6,37 +6,37 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('usuarios', '0001_initial'),
+        ("usuarios", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='usuario',
-            name='direccion',
+            model_name="usuario",
+            name="direccion",
         ),
         migrations.AddField(
-            model_name='usuario',
-            name='calle',
+            model_name="usuario",
+            name="calle",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='usuario',
-            name='ciudad',
+            model_name="usuario",
+            name="ciudad",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='usuario',
-            name='codigo_postal',
+            model_name="usuario",
+            name="codigo_postal",
             field=models.CharField(blank=True, max_length=10, null=True),
         ),
         migrations.AddField(
-            model_name='usuario',
-            name='colonia',
+            model_name="usuario",
+            name="colonia",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='usuario',
-            name='estado',
+            model_name="usuario",
+            name="estado",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
     ]

@@ -1,0 +1,219 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block producto_links %}
+<style>
+  .carrito-img {
+    width: 70px;
+    height: 70px;
+    min-width: 70px;
+    flex-shrink: 0;
+    object-fit: cover;
+    display: block;
+  }
+  .cantidad-input {
+    width: 65px;
+    text-align: center;
+  }
+  .carrito-vacio {
+    text-align: center;
+    padding: 5rem 0;
+    color: #6c757d;
+  }
+  .carrito-vacio i {
+    font-size: 5rem;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .resumen-card {
+    position: sticky;
+    top: 80px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="mt-4 mb-4">Mi Carrito</h1>
+
+{% if items %}
+<div class="row g-4">
+  <!-- Lista de items -->
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-body p-0">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-3">Producto</th>
+              <th>Precio</th>
+              <th>Cantidad</th>
+              <th>Subtotal</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="carrito-body">
+            {% for item in items %}
+            <tr id="fila-{{ item.talla_variante.id }}">
+              <td class="ps-3">
+                <div class="d-flex align-items-center gap-3">
+                  <a href="{% url 'producto' item.talla_variante.color_producto.producto.id %}"><img src="{{ item.talla_variante.color_producto.imagen_color.url }}" class="carrito-img" alt="{{ item.talla_variante.color_producto.producto.nombre }}"></a>
+                  <div>
+                    <div class="fw-semibold">{{ item.talla_variante.color_producto.producto.nombre }}</div>
+                    <small class="text-muted">{{ item.talla_variante.color_producto.color.nombre }} — Talla {{ item.talla_variante.talla.nombre }}</small>
+                  </div>
+                </div>
+              </td>
+              <td>${{ item.talla_variante.precio }}</td>
+              <td>
+                <div class="input-group input-group-sm" style="width: 120px;">
+                  <button class="btn btn-outline-secondary btn-menos" type="button" data-id="{{ item.talla_variante.id }}" data-cantidad="{{ item.cantidad }}">-</button>
+                  <input type="text" class="form-control cantidad-input" value="{{ item.cantidad }}" data-id="{{ item.talla_variante.id }}" readonly>
+                  <button class="btn btn-outline-secondary btn-mas" type="button" data-id="{{ item.talla_variante.id }}" data-cantidad="{{ item.cantidad }}">+</button>
+                </div>
+              </td>
+              <td class="subtotal-{{ item.talla_variante.id }}">${{ item.subtotal }}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-danger btn-eliminar" data-id="{{ item.talla_variante.id }}" title="Eliminar">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resumen del pedido -->
+  <div class="col-lg-4">
+    <div class="card shadow-sm resumen-card">
+      <div class="card-body">
+        <h5 class="card-title mb-4">Resumen del Pedido</h5>
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Subtotal</span>
+          <span id="total-display">${{ total }}</span>
+        </div>
+        <hr>
+        <div class="d-flex justify-content-between fw-bold fs-5 mb-4">
+          <span>Total</span>
+          <span id="total-display-2">${{ total }}</span>
+        </div>
+        <form method="POST" action="{% url 'confirmar_pedido' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2">
+            <i class="bi bi-whatsapp"></i>
+            Confirmar por WhatsApp
+          </button>
+        </form>
+        <a href="{% url 'catalogo' %}" class="btn btn-outline-secondary w-100 mt-2">Seguir comprando</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% else %}
+<div class="carrito-vacio">
+  <i class="bi bi-cart-x"></i>
+  <h4>Tu carrito está vacío</h4>
+  <p>Explora nuestro catálogo y agrega los productos que necesitas.</p>
+  <a href="{% url 'catalogo' %}" class="btn btn-primary mt-2">Ver Catálogo</a>
+</div>
+{% endif %}
+
+<script>
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} position-fixed end-0 m-3 shadow`;
+    toast.style.top = '80px';
+    toast.style.zIndex = '1055';
+    toast.style.transition = 'opacity 0.5s';
+    toast.innerText = message;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 500);
+    }, 3000);
+  }
+
+  function actualizarTotalUI(nuevoSubtotal, varianteId) {
+    document.querySelector(`.subtotal-${varianteId}`).innerText = `$${nuevoSubtotal}`;
+    let total = 0;
+    document.querySelectorAll('[class^="subtotal-"]').forEach(el => {
+      total += parseFloat(el.innerText.replace('$', '').replace(',', ''));
+    });
+    document.getElementById('total-display').innerText = `$${total.toFixed(2)}`;
+    document.getElementById('total-display-2').innerText = `$${total.toFixed(2)}`;
+  }
+
+  document.querySelectorAll('.btn-menos').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const input = document.querySelector(`.cantidad-input[data-id="${id}"]`);
+      let cantidad = parseInt(input.value);
+      if (cantidad <= 1) return;
+      cantidad -= 1;
+      input.value = cantidad;
+      fetch(`/carrito/actualizar/${id}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `cantidad=${cantidad}`
+      }).then(r => r.json()).then(data => {
+        if (data.subtotal) actualizarTotalUI(data.subtotal, id);
+      });
+    });
+  });
+
+  document.querySelectorAll('.btn-mas').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const input = document.querySelector(`.cantidad-input[data-id="${id}"]`);
+      let cantidad = parseInt(input.value) + 1;
+      input.value = cantidad;
+      fetch(`/carrito/actualizar/${id}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `cantidad=${cantidad}`
+      }).then(r => r.json()).then(data => {
+        if (data.subtotal) actualizarTotalUI(data.subtotal, id);
+      });
+    });
+  });
+
+  document.querySelectorAll('.btn-eliminar').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      fetch(`/carrito/eliminar/${id}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+      }).then(r => r.json()).then(data => {
+        if (data.estado === 'eliminado') {
+          document.getElementById(`fila-${id}`).remove();
+          showToast('Producto eliminado del carrito', 'secondary');
+          if (data.carrito_count !== undefined) updateCartBadge(data.carrito_count);
+          if (!document.querySelector('#carrito-body tr')) location.reload();
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}
+
+{% block content_footer %}
+{% include 'layouts/footer.html' %}
+{% endblock %}

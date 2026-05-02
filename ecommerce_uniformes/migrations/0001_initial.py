@@ -15,103 +15,277 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Categoria',
+            name="Categoria",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nombre', models.CharField(max_length=50, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("nombre", models.CharField(max_length=50, unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Color',
+            name="Color",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nombre', models.CharField(max_length=50)),
-                ('codigo_hex', models.CharField(max_length=7)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("nombre", models.CharField(max_length=50)),
+                ("codigo_hex", models.CharField(max_length=7)),
             ],
         ),
         migrations.CreateModel(
-            name='Talla',
+            name="Talla",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nombre', models.CharField(max_length=10)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("nombre", models.CharField(max_length=10)),
             ],
         ),
         migrations.CreateModel(
-            name='ClicksWhatsapp',
+            name="ClicksWhatsapp",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('fecha', models.DateTimeField(auto_now_add=True)),
-                ('usuario', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("fecha", models.DateTimeField(auto_now_add=True)),
+                (
+                    "usuario",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Pedido',
+            name="Pedido",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('fecha', models.DateTimeField(auto_now_add=True)),
-                ('total', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('estado', models.CharField(choices=[('pendiente', 'Pendiente'), ('enviado', 'Enviado'), ('entregado', 'Entregado'), ('cancelado', 'Cancelado')], max_length=50)),
-                ('usuario', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("fecha", models.DateTimeField(auto_now_add=True)),
+                ("total", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "estado",
+                    models.CharField(
+                        choices=[
+                            ("pendiente", "Pendiente"),
+                            ("enviado", "Enviado"),
+                            ("entregado", "Entregado"),
+                            ("cancelado", "Cancelado"),
+                        ],
+                        max_length=50,
+                    ),
+                ),
+                (
+                    "usuario",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Producto',
+            name="Producto",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nombre', models.CharField(max_length=200)),
-                ('descripcion', models.TextField()),
-                ('imagen_portada', models.ImageField(upload_to='productos/')),
-                ('modelo', models.CharField(blank=True, max_length=50, null=True)),
-                ('categoria', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='ecommerce_uniformes.categoria')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("nombre", models.CharField(max_length=200)),
+                ("descripcion", models.TextField()),
+                ("imagen_portada", models.ImageField(upload_to="productos/")),
+                ("modelo", models.CharField(blank=True, max_length=50, null=True)),
+                (
+                    "categoria",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="ecommerce_uniformes.categoria",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='HistorialStock',
+            name="HistorialStock",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('fecha', models.DateTimeField(auto_now_add=True)),
-                ('cantidad_anterior', models.PositiveIntegerField()),
-                ('cantidad_nueva', models.PositiveIntegerField()),
-                ('producto', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ecommerce_uniformes.producto')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("fecha", models.DateTimeField(auto_now_add=True)),
+                ("cantidad_anterior", models.PositiveIntegerField()),
+                ("cantidad_nueva", models.PositiveIntegerField()),
+                (
+                    "producto",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="ecommerce_uniformes.producto",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Favoritos',
+            name="Favoritos",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('fecha_agregado', models.DateTimeField(auto_now_add=True)),
-                ('usuario', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('producto', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ecommerce_uniformes.producto')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("fecha_agregado", models.DateTimeField(auto_now_add=True)),
+                (
+                    "usuario",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "producto",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="ecommerce_uniformes.producto",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='DetallesPedido',
+            name="DetallesPedido",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('cantidad', models.PositiveIntegerField()),
-                ('total', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('pedido', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ecommerce_uniformes.pedido')),
-                ('producto', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ecommerce_uniformes.producto')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("cantidad", models.PositiveIntegerField()),
+                ("total", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "pedido",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="ecommerce_uniformes.pedido",
+                    ),
+                ),
+                (
+                    "producto",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="ecommerce_uniformes.producto",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ColorProducto',
+            name="ColorProducto",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('imagen_color', models.ImageField(upload_to='productos/colores/')),
-                ('color', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ecommerce_uniformes.color')),
-                ('producto', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='colores', to='ecommerce_uniformes.producto')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("imagen_color", models.ImageField(upload_to="productos/colores/")),
+                (
+                    "color",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="ecommerce_uniformes.color",
+                    ),
+                ),
+                (
+                    "producto",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="colores",
+                        to="ecommerce_uniformes.producto",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='TallaVariante',
+            name="TallaVariante",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('sku', models.CharField(max_length=50, unique=True)),
-                ('stock', models.PositiveIntegerField(default=0)),
-                ('precio', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('color_producto', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tallas', to='ecommerce_uniformes.colorproducto')),
-                ('talla', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ecommerce_uniformes.talla')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("sku", models.CharField(max_length=50, unique=True)),
+                ("stock", models.PositiveIntegerField(default=0)),
+                ("precio", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "color_producto",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="tallas",
+                        to="ecommerce_uniformes.colorproducto",
+                    ),
+                ),
+                (
+                    "talla",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="ecommerce_uniformes.talla",
+                    ),
+                ),
             ],
         ),
     ]

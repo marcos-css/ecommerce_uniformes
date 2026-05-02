@@ -1,0 +1,199 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Panel de Administración</h1>
+        <a href="/admin/" class="btn btn-outline-dark">
+            <i class="bi bi-gear-fill me-2"></i>Django Admin
+        </a>
+    </div>
+
+    <!-- Estadísticas Rápidas -->
+    <div class="row g-4 mb-5">
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm bg-primary text-white h-100">
+                <div class="card-body p-4 text-center">
+                    <i class="bi bi-cart-check fs-1 mb-2"></i>
+                    <h5 class="card-title">Pedidos Hoy</h5>
+                    <p class="display-4 fw-bold mb-0">{{ pedidos_hoy }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm bg-warning text-dark h-100">
+                <div class="card-body p-4 text-center">
+                    <i class="bi bi-clock-history fs-1 mb-2"></i>
+                    <h5 class="card-title">Pendientes de Confirmar</h5>
+                    <p class="display-4 fw-bold mb-0">{{ pedidos_pendientes }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm bg-success text-white h-100">
+                <div class="card-body p-4 text-center">
+                    <i class="bi bi-currency-dollar fs-1 mb-2"></i>
+                    <h5 class="card-title">Ventas Totales</h5>
+                    <p class="display-5 fw-bold mb-0">${{ total_ventas|floatformat:2 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Pedidos Recientes -->
+        <div class="col-12 col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">Pedidos Recientes</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pedido in pedidos_recientes %}
+                                <tr>
+                                    <td><strong>#{{ pedido.id }}</strong></td>
+                                    <td>
+                                        {{ pedido.usuario.get_full_name|default:pedido.usuario.username }}<br>
+                                        <small class="text-muted">{{ pedido.usuario.usuario.telefono }}</small>
+                                    </td>
+                                    <td>{{ pedido.fecha|date:"d M, H:i" }}</td>
+                                    <td>${{ pedido.total }}</td>
+                                    <td>
+                                        <span class="badge {% if pedido.estado == 'pendiente' %}bg-warning text-dark{% elif pedido.estado == 'entregado' %}bg-success{% else %}bg-info{% endif %}">
+                                            {{ pedido.get_estado_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="/admin/ecommerce_uniformes/pedido/{{ pedido.id }}/change/" class="btn btn-sm btn-outline-primary">
+                                            Editar
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-muted">No hay pedidos registrados.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alertas de Stock Bajo -->
+        <div class="col-12 col-lg-4">
+            <div class="card border-0 shadow-sm border-start border-danger border-4 h-100">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-danger">Stock Bajo</h5>
+                    <span class="badge bg-danger rounded-pill">{{ stock_bajo.count }}</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for item in stock_bajo %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ item.color_producto.producto.nombre }}</h6>
+                                    <small class="text-muted">
+                                        {{ item.color_producto.color.nombre }} / Talla {{ item.talla.nombre }}
+                                    </small>
+                                </div>
+                                <span class="badge {% if item.stock == 0 %}bg-danger{% else %}bg-warning text-dark{% endif %} fs-6">
+                                    {{ item.stock }}
+                                </span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="p-4 text-center text-muted">
+                            <i class="bi bi-check-circle text-success fs-1 d-block mb-2"></i>
+                            Todo el stock está al día.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 py-3">
+                    <a href="/admin/ecommerce_uniformes/tallavariante/" class="btn btn-sm btn-outline-danger w-100">
+                        Gestionar Inventario
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4 mt-2">
+        <!-- Mensajes de Contacto -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Mensajes de Contacto Recientes</h5>
+                    {% if mensajes_sin_leer > 0 %}
+                    <span class="badge bg-primary">{{ mensajes_sin_leer }} nuevos</span>
+                    {% endif %}
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Remitente</th>
+                                    <th>Email / Tel</th>
+                                    <th>Mensaje</th>
+                                    <th>Estado</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mensaje in mensajes_recientes %}
+                                <tr class="{% if not mensaje.leido %}table-primary-subtle{% endif %}">
+                                    <td>{{ mensaje.fecha|date:"d M, H:i" }}</td>
+                                    <td><strong>{{ mensaje.nombre }}</strong></td>
+                                    <td>
+                                        <small>{{ mensaje.email }}</small><br>
+                                        <small>{{ mensaje.telefono }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="text-truncate" style="max-width: 300px;">
+                                            {{ mensaje.mensaje }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if mensaje.leido %}
+                                        <span class="badge bg-secondary">Leído</span>
+                                        {% else %}
+                                        <span class="badge bg-primary">Nuevo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="/admin/ecommerce_uniformes/mensajecontacto/{{ mensaje.id }}/change/" class="btn btn-sm btn-outline-dark">
+                                            Ver detalle
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-muted">No hay mensajes de contacto.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
